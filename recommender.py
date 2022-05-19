@@ -1,3 +1,4 @@
+from cProfile import label
 import stellargraph as sg
 from stellargraph import StellarGraph
 from stellargraph.data import UnsupervisedSampler
@@ -21,12 +22,15 @@ def generate_random_subgraph(node_type, nodes, link_type, links, size):
     random_nodes = nodes.loc[random_selection]
     random_nodes_links = links[(links["source"].isin(random_nodes.index)) & 
                                (links["target"].isin(random_nodes.index))]
+    
     random_sub_graph = StellarGraph({node_type: random_nodes}, 
                                     {link_type: random_nodes_links[["source","target"]]})
     return random_sub_graph, random_nodes
 
 """ Attri2vec """
-def attri2vec_model(G, number_of_walks=5, walk_length=3, batch_size=10, layer_sizes=[32], epochs=2):
+def attri2vec_model(G, 
+                    number_of_walks=3, walk_length=3, 
+                    batch_size=50, layer_sizes=[32], epochs=2):
     nodes = list(G.nodes())
     print("Generate samples ...")
     unsupervised_samples = UnsupervisedSampler(G, nodes=nodes, length=walk_length, number_of_walks=number_of_walks)
@@ -49,9 +53,9 @@ def attri2vec_model(G, number_of_walks=5, walk_length=3, batch_size=10, layer_si
 
 """ GraphSAGE """
 def graphsage_model(G,
-                    number_of_walks=1, length=5,
-                    batch_size=50, epochs = 4, num_samples=[10,5],
-                    layer_sizes=[50,50]):
+                    number_of_walks=3, length=3,
+                    batch_size=50, epochs=2, num_samples=[5,3],
+                    layer_sizes=[64,32]):
     nodes = list(G.nodes())
     print("Generate samples ...")
     unsupervised_samples = UnsupervisedSampler(G, nodes=nodes, length=length, number_of_walks=number_of_walks)
@@ -82,18 +86,21 @@ def generate_embeddings(features, generator, x_inp_src, x_out_src):
 """ Plot embeddings using decomposed embeddings """
 def plot_embeddings(embeddings, labels, transformation):
     embeddings_2d = transformation.fit_transform(embeddings)
-    label_map = {l: i for i, l in enumerate(np.unique(labels))}
-    node_colours = [label_map[target] for target in labels]
-
+    Colour_map = {0: 'red', 1: 'orange', 2: 'purple', 3: 'blue'}
+    GroupNames = {0: 'Book', 1: 'DVD', 2: 'Music', 3: 'Video'}
+    Colours = [Colour_map[label] for label in labels]
+    Labels = [GroupNames[label] for label in labels]
+    
+    df = pd.DataFrame({"x":embeddings_2d[:, 0], 
+                       "y": embeddings_2d[:, 1], 
+                       "color": Colours, 
+                       "label": Labels})
+    
     plt.figure(figsize=(7, 7))
-    plt.axes().set(aspect="equal")
-    plt.scatter(
-        embeddings_2d[:, 0],
-        embeddings_2d[:, 1],
-        c=node_colours,
-        # label=labels,
-        cmap="jet",
-        alpha=0.7)
+    ax = df[df.label=="Book"].plot.scatter(x="x",y="y",c="color",label="Book")
+    df[df.label=="DVD"].plot.scatter(ax=ax,x="x",y="y",c="color",label="DVD")
+    df[df.label=="Music"].plot.scatter(ax=ax,x="x",y="y",c="color",label="Music")
+    df[df.label=="Video"].plot.scatter(ax=ax,x="x",y="y",c="color",label="Video")
     plt.legend()
     plt.title("Visualization of node embeddings")
     plt.show()
@@ -153,11 +160,10 @@ def calc_similarities(G, sample_nodes):
 
 """ Prints similar products by similarities """
 def print_sim_products(nodes_df, similarity_df, max_similars=10):
-    node_info = nodes_df.set_index("Id")
     for col in similarity_df.columns:
         prod = int(col.split('_')[0])
-        group = str(node_info.loc[prod,"Group"])
-        title = str(node_info.loc[prod,"Title"])
+        group = str(nodes_df.loc[prod,"Group"])
+        title = str(nodes_df.loc[prod,"Title"])
         df = similarity_df[similarity_df[col]>0]
         df = df.sort_values(col,ascending=False)
         similars = df.index
@@ -167,6 +173,6 @@ def print_sim_products(nodes_df, similarity_df, max_similars=10):
         print(f"Metric {col.split('_')[1]}: ")
         for i,similar in enumerate(similars):
             if i >= max_similars: break
-            group = str(node_info.loc[similar,"Group"])
-            title = str(node_info.loc[similar,"Title"])
+            group = str(nodes_df.loc[similar,"Group"])
+            title = str(nodes_df.loc[similar,"Title"])
             print(f"{i+1}. {group} '{title}': {values[i]}")
