@@ -19,16 +19,29 @@ The link of source dataset: https://snap.stanford.edu/data/amazon-meta.html
 The basic roadmap from data to recommender systems would look roughtly like this:
 
 ```
-Dataset -> Clean -> Graph -> Graph Analyze -> Neural Network building -> Recommender System
+Dataset -> Clean -> Graph -> Graph Analyze -> Neural Network -> Recommender System
 ```
 
 ### Files
-Main file is `Notebook.ipynb` which consists
-- the **e**xtraction data from source file (text to pandas dataframe) (**done**)
+There are 3 main files: 
+1. `DataPreparation.ipynb` which consists
+- the **e**xtraction of data from source file (text to pandas dataframe) (**done**)
   - additional file `text2dictionary.py` including the method for collecting the data from text file
 - the **t**ransformation of initial dataframe for cleansing purposes (**done**)
 - initial analysis on data to filter out the most relevant, accurate and interesting part (**done**)
-- the **l**oading to links, bilinks and nodes dataframes (**done**)
-- graph creation (*in progress*)
-- graph analysis (*in progress*)
+- the **l**oading to alinks, bilinks and nodes dataframes (**done**)
+2. `GraphAnalysis.ipynb` which contains
+- graph creation (**done**)
+  - product-product graph with links of Amazon's similarities `alinks`
+  - product-customer bipartite graph with links gained from customer reviews `bilinks`
+  - product-product graph with links connecting products of same customer `clinks`
+    - clinks creation can be found in `preprocessor.py`
+- graph analysis (**done**)
   - graph methods provided in additional file `graphmethods.py`
+3. `Recommender.ipynb` consisting of
+- making Stellargraph object of `nodes` and `alinks`
+- embedding the graph with shallow net `Attri2vec` which uses note attributes to create node embeddings, and deep graph convolutional neural network `GraphSAGE` which uses the node and it's neighbours attributes embedding them, aggregating them, etc, containing more structural information than Attri2vec should do
+- Using embeddings in `recommender` which uses unsupervised Nearest Neighbour algorithm. We used different distance metrics as `minkowski`, `manhattan` and `canberra`.
+- Finding the recommendations using similarity measures as `adamic-adar` (networkx actually has a bug in their algorithm and we cant use it), `jaccard similarity` and `preferential attachment`.
+  - all needed functions are saved into `recommender.py`.
+4. Working notebooks created during the project are in Drafts folder to save the history.

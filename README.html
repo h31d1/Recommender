@@ -79,26 +79,60 @@
 <p>The link of source dataset: <a href="https://snap.stanford.edu/data/amazon-meta.html">https://snap.stanford.edu/data/amazon-meta.html</a></p>
 <h3 id="methodology">Methodology</h3>
 <p>The basic roadmap from data to recommender systems would look roughtly like this:</p>
-<pre><code><code><div>Dataset -&gt; Clean -&gt; Graph -&gt; Graph Analyze -&gt; Neural Network building -&gt; Recommender System
+<pre><code><code><div>Dataset -&gt; Clean -&gt; Graph -&gt; Graph Analyze -&gt; Neural Network -&gt; Recommender System
 </div></code></code></pre>
 <h3 id="files">Files</h3>
-<p>Main file is <code>Notebook.ipynb</code> which consists</p>
+<p>There are 3 main files:</p>
+<ol>
+<li><code>DataPreparation.ipynb</code> which consists</li>
+</ol>
 <ul>
-<li>the <strong>e</strong>xtraction data from source file (text to pandas dataframe) (<strong>done</strong>)
+<li>the <strong>e</strong>xtraction of data from source file (text to pandas dataframe) (<strong>done</strong>)
 <ul>
 <li>additional file <code>text2dictionary.py</code> including the method for collecting the data from text file</li>
 </ul>
 </li>
 <li>the <strong>t</strong>ransformation of initial dataframe for cleansing purposes (<strong>done</strong>)</li>
 <li>initial analysis on data to filter out the most relevant, accurate and interesting part (<strong>done</strong>)</li>
-<li>the <strong>l</strong>oading to links, bilinks and nodes dataframes (<strong>done</strong>)</li>
-<li>graph creation (<em>in progress</em>)</li>
-<li>graph analysis (<em>in progress</em>)
+<li>the <strong>l</strong>oading to alinks, bilinks and nodes dataframes (<strong>done</strong>)</li>
+</ul>
+<ol start="2">
+<li><code>GraphAnalysis.ipynb</code> which contains</li>
+</ol>
+<ul>
+<li>graph creation (<strong>done</strong>)
+<ul>
+<li>product-product graph with links of Amazon's similarities <code>alinks</code></li>
+<li>product-customer bipartite graph with links gained from customer reviews <code>bilinks</code></li>
+<li>product-product graph with links connecting products of same customer <code>clinks</code>
+<ul>
+<li>clinks creation can be found in <code>preprocessor.py</code></li>
+</ul>
+</li>
+</ul>
+</li>
+<li>graph analysis (<strong>done</strong>)
 <ul>
 <li>graph methods provided in additional file <code>graphmethods.py</code></li>
 </ul>
 </li>
 </ul>
+<ol start="3">
+<li><code>Recommender.ipynb</code> consisting of</li>
+</ol>
+<ul>
+<li>making Stellargraph object of <code>nodes</code> and <code>alinks</code></li>
+<li>embedding the graph with shallow net <code>Attri2vec</code> which uses note attributes to create node embeddings, and deep graph convolutional neural network <code>GraphSAGE</code> which uses the node and it's neighbours attributes embedding them, aggregating them, etc, containing more structural information than Attri2vec should do</li>
+<li>Using embeddings in <code>recommender</code> which uses unsupervised Nearest Neighbour algorithm. We used different distance metrics as <code>minkowski</code>, <code>manhattan</code> and <code>canberra</code>.</li>
+<li>Finding the recommendations using similarity measures as <code>adamic-adar</code> (networkx actually has a bug in their algorithm and we cant use it), <code>jaccard similarity</code> and <code>preferential attachment</code>.
+<ul>
+<li>all needed functions are saved into <code>recommender.py</code>.</li>
+</ul>
+</li>
+</ul>
+<ol start="4">
+<li>Working notebooks created during the project are in Drafts folder to save the history.</li>
+</ol>
 
         
         
