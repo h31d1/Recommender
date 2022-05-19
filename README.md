@@ -45,3 +45,12 @@ There are 3 main files:
 - Finding the recommendations using similarity measures as `adamic-adar` (networkx actually has a bug in their algorithm and we cant use it), `jaccard similarity` and `preferential attachment`.
   - all needed functions are saved into `recommender.py`.
 4. Working notebooks created during the project are in Drafts folder to save the history.
+5. Additionally, needed packages can be installed to your 3.8 python environment from `requirements.txt` file.
+
+```
+conda create --name NS
+conda activate NS
+conda install python=3.8
+conda install pip
+pip install -r requirements.txt
+```
