@@ -1,0 +1,12 @@
+numpy
+pandas
+matplotlib
+sklearn
+tensorflow
+keras
+networkx
+tqdm
+nltk
+joblib
+stellargraph
+chardet
